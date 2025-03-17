@@ -1,17 +1,17 @@
 import { Task } from '../models/Task.js';
 
 //Crear tarea
-export const createTask = async (req, res, next) => {
+const createTask = async (req, res, next) => {
   try {
     const newTask = await Task.create ( req.body );
-    res.json( newTask );
+    res.status(201).json( newTask );
   } catch ( error ) {
     next(error);
   };
 };
 
 //Obtener todas las tareas
-export const getAllTasks = async (req, res, next) => {
+const getAllTasks = async (req, res, next) => {
   try {
     const getAllTasks = await Task.findAll()
     res.json( getAllTasks );
@@ -21,10 +21,10 @@ export const getAllTasks = async (req, res, next) => {
 };
 
 //Obtener tarea por Id
-export const getTaskById = async (req, res, next) => {
+const getTaskById = async (req, res, next) => {
   try {
-    const getTaskById = await User.findByPk( req.params.id )
-    if( !getTaskById ) return res.status(404).json({ error: `Tarea no encontrada` });
+    const getTaskById = await Task.findByPk( req.params.id )
+    if( !getTaskById ) return res.status(400).json({ error: `Tarea no encontrada` });
     res.json( getTaskById );
   } catch (error) {
     next( error );
@@ -32,10 +32,10 @@ export const getTaskById = async (req, res, next) => {
 };
 
 //Actualizar tarea
-export const updateTask = async (req, res, next) => {
+const updateTask = async (req, res, next) => {
   try {
     const updateTaskById = await Task.findByPk( req.params.id )
-    if (!updateTaskById ) return res.status(404).json({ error: "Tarea no encontrada" });
+    if (!updateTaskById ) return res.status(400).json({ error: "Tarea no encontrada" });
     await updateTaskById.update(req.body);
     res.json( updateTaskById );
   } catch (error) {
@@ -44,13 +44,21 @@ export const updateTask = async (req, res, next) => {
 };
 
 //Eliminar tarea
-export const deleteTask = async (req, res, next) => {
+const deleteTask = async (req, res, next) => {
   try {
     const deleteTaskById = await Task.findByPk(req.params.id);
-    if (!deleteTaskById) return res.status(404).json({ error: "Tarea no encontrada" });
+    if (!deleteTaskById) return res.status(400).json({ error: "Tarea no encontrada" });
     await deleteTaskById.destroy();
     res.json({ mensaje: "Tarea eliminada" });
   } catch (error) {
     next( error );
   }
+};
+
+export const TaskController = {
+  createTask,
+  getAllTasks,
+  getTaskById,
+  updateTask,
+  deleteTask
 };

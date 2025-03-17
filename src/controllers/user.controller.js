@@ -2,10 +2,10 @@ import { Task } from '../models/Task.js';
 import { User } from '../models/User.js';
 
 //Crear usuario
-export const createUser = async (req, res, next) => {
+const createUser = async (req, res, next) => {
   try {
     const newUser = await User.create ( req.body );
-    res.json( newUser );
+    res.status(201).json( newUser );
   } catch ( error ) {
     if ( error.name === 'SequelizeUniqueConstraintError' ) {
       const field = Object.keys( error.fields )[0];
@@ -17,7 +17,7 @@ export const createUser = async (req, res, next) => {
 };
 
 //Obtener todos los usuarios
-export const getAllUsers = async (req, res, next) => {
+const getAllUsers = async (req, res, next) => {
   try {
     const getAllUsers = await User.findAll()
     res.json( getAllUsers );
@@ -27,10 +27,10 @@ export const getAllUsers = async (req, res, next) => {
 };
 
 //Obtener usuario por Id
-export const getUserById = async (req, res, next) => {
+const getUserById = async (req, res, next) => {
   try {
     const getUserById = await User.findByPk( req.params.id )
-    if( !getUserById ) return res.status(404).json({ error: `Usuario no encontrado` });
+    if( !getUserById ) return res.status(400).json({ error: `Usuario no encontrado` });
     res.json( getUserById );
   } catch (error) {
     next( error );
@@ -38,10 +38,10 @@ export const getUserById = async (req, res, next) => {
 };
 
 //Actualizar usario
-export const updateUser = async (req, res, next) => {
+const updateUser = async (req, res, next) => {
   try {
     const updateUserById = await User.findByPk( req.params.id )
-    if (!updateUserById ) return res.status(404).json({ error: "Usuario no encontrado" });
+    if (!updateUserById ) return res.status(400).json({ error: "Usuario no encontrado" });
     await updateUserById.update(req.body);
     res.json( updateUserById );
   } catch (error) {
@@ -50,10 +50,10 @@ export const updateUser = async (req, res, next) => {
 };
 
 //Eliminar usuario
-export const deleteUser = async (req, res, next) => {
+const deleteUser = async (req, res, next) => {
   try {
     const deleteUserById = await User.findByPk(req.params.id);
-    if (!deleteUserById) return res.status(404).json({ error: "Usuario no encontrado" });
+    if (!deleteUserById) return res.status(400).json({ error: "Usuario no encontrado" });
     await deleteUserById.destroy();
     res.json({ mensaje: "Usuario eliminado" });
   } catch (error) {
@@ -62,7 +62,7 @@ export const deleteUser = async (req, res, next) => {
 };
 
 //Obtener todos las tareas de un usuario
-export const getAllTasksByUser = async(req, res, next) => {
+const getAllTasksByUser = async(req, res, next) => {
   try {
     const { id } = req.params;
     const tasksByUser = await Task.findAll({
@@ -72,4 +72,13 @@ export const getAllTasksByUser = async(req, res, next) => {
   } catch (error) {
     next( error );
   }
+};
+
+export const UserController = {
+  createUser,
+  getAllUsers,
+  getUserById,
+  updateUser,
+  deleteUser,
+  getAllTasksByUser
 };
