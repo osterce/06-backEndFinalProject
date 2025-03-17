@@ -1,10 +1,19 @@
+import bcrypt from 'bcryptjs';
+
 import { Task } from '../models/Task.js';
 import { User } from '../models/User.js';
 
 //Crear usuario
 const createUser = async (req, res, next) => {
   try {
-    const newUser = await User.create ( req.body );
+    const { user, email, password } = req.body;
+    const salt = await bcrypt.genSalt( 10 );
+    const hashedPassword = await bcrypt.hash( password, salt );
+    const newUser = await User.create ({
+      user,
+      email,
+      password:hashedPassword
+    });
     res.status(201).json( newUser );
   } catch ( error ) {
     if ( error.name === 'SequelizeUniqueConstraintError' ) {
