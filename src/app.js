@@ -10,11 +10,14 @@ const app = express();
 
 //middlewares
 app.use( express.json() );
-app.use( cors() );
+app.use( cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}));
 
-app.use( userRoutes );
-app.use( taskRoutes );
-app.use( authRoutes );
+app.use( '/api', userRoutes );
+app.use( '/api',taskRoutes );
+app.use( '/api', authRoutes );
 
 app.use((err, req, res, next) => {
   return res.status(500).json({ message: err.message });

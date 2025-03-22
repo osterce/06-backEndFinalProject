@@ -14,26 +14,57 @@ const login = async (req, res) => {
 
   // Crear un token JWT
   const token = jwt.sign(
-    { id: user.id, user: user.user },
+    { id: user.id, username: user.username },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRATION }
   );
 
-  res.json({ token });
+  res.cookie('token', token);
+  res.json({
+    id: user.id,
+    username: user.username,
+    email: user.email,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt
+  });
 };
+
+const logout = async(req, res) => {
+  res.cookie( 'token', '', {expires: new Date(0)});
+  return res.sendStatus(200);
+}
 
 //Ruta protegida
 const profile = async( req, res, next ) => {
   try {
-
-    const user = await User.findOne({ where: { user:req.user.user } });
+    const user = await User.findOne({ where: { username:req.user.username } });
     res.json( user );
   } catch (error) {
     next( error );
   }
 }
 
+const verifyToken = async (req, res) => {
+  const token = req.header('Authorization') && req.header('Authorization').split(' ')[1];;
+  if (!token) return res.send(false);
+
+  jwt.verify(token, process.env.JWT_SECRET,  async(err, user) => {
+    if (err) return res.sendStatus(401);
+
+    const userFound = await User.findById(user.id);
+    if (!userFound) return res.sendStatus(401);
+
+    return res.json({
+      id: userFound.id,
+      username: userFound.username,
+      email: userFound.email,
+    });
+  });
+};
+
 export const AuthController = {
   login,
-  profile
-};
+  logout,
+  profile,
+  verifyToken
+}

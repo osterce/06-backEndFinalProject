@@ -6,20 +6,21 @@ import { User } from '../models/User.js';
 //Crear usuario
 const createUser = async (req, res, next) => {
   try {
-    const { user, email, password } = req.body;
+    const { username, email, password } = req.body;
     const salt = await bcrypt.genSalt( 10 );
     const hashedPassword = await bcrypt.hash( password, salt );
     const newUser = await User.create ({
-      user,
+      username,
       email,
       password:hashedPassword
     });
-    res.status(201).json( newUser );
+    res.status(201).json( { id: newUser.id, username: newUser.username, email: newUser.email } );
   } catch ( error ) {
     if ( error.name === 'SequelizeUniqueConstraintError' ) {
       const field = Object.keys( error.fields )[0];
-      const message = field === 'user' ? "Usuario ya existe" : "Email ya existe";
-      return res.status(409).json({ message });
+      return field === 'username'
+        ? res.status(409).json(['Usuario ya existe'])
+        : res.status(409).json(['Email ya existe'])
     }
     next(error);
   };

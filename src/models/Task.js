@@ -17,7 +17,7 @@ export const Task = sequelize.define('task', {
   },
   state: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: true
   },
   limit_date: {
     type: DataTypes.DATE
